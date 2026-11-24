@@ -1,0 +1,999 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Universe Celebrates You</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #080e20;
+    color: #fff1db;
+    font-family: Georgia, serif;
+    overflow: hidden;
+}
+
+#film {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#story {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 25px;
+    pointer-events: none;
+}
+
+#chapter {
+    font-size: 10px;
+    letter-spacing: 5px;
+    margin-bottom: 24px;
+    color: #e4c9ac;
+}
+
+#headline {
+    font-size: clamp(34px, 7vw, 72px);
+    font-weight: normal;
+    font-style: italic;
+    line-height: 1.2;
+    text-shadow: 0 0 30px #eed0b488;
+}
+
+#subtitle {
+    font-size: clamp(14px, 3vw, 19px);
+    line-height: 1.9;
+    max-width: 600px;
+    margin-top: 24px;
+    color: #f3dfd3;
+}
+
+.controls {
+    position: absolute;
+    bottom: 35px;
+    left: 0;
+    right: 0;
+    text-align: center;
+}
+
+button {
+    background: #fff1dc12;
+    border: 1px solid #fff1dc77;
+    color: #fff1dc;
+    border-radius: 30px;
+    padding: 14px 28px;
+    font-family: Georgia, serif;
+    font-size: 14px;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: 0.4s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+button:hover {
+    background: #fff1dc30;
+    box-shadow: 0 0 25px #fff1dc33;
+}
+
+#dots {
+    margin-top: 20px;
+    font-size: 10px;
+    letter-spacing: 8px;
+    color: #d4b8a5;
+}
+
+.enter {
+    animation: reveal 1.8s both;
+}
+
+@keyframes reveal {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+        filter: blur(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+@media (max-height: 500px) {
+    #story {
+        padding-bottom: 75px;
+    }
+
+    #headline {
+        font-size: 32px;
+    }
+
+    #subtitle {
+        font-size: 12px;
+        margin-top: 10px;
+    }
+
+    .controls {
+        bottom: 12px;
+    }
+}
+
+
+   
+#photoBackground {
+    position: absolute;
+    inset: 0;
+    background-image: url("hbd.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.15;
+    filter: brightness(0.6);
+    z-index: 1;
+    pointer-events: none;
+    animation: photoZoom 25s ease-in-out infinite alternate;
+}
+
+#story {
+    z-index: 2;
+}
+
+.controls {
+    z-index: 3;
+}
+
+@keyframes photoZoom {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.12);
+    }
+}
+
+
+
+</style>
+  
+</head>
+
+<body>
+
+<div id="film">
+
+  <canvas id="scene"></canvas>
+<div id="photoBackground"></div>
+
+    <div id="story">
+
+        <div id="chapter" class="enter">
+            A LITTLE STORY FOR YOU
+        </div>
+
+        <h1 id="headline" class="enter">
+            Di antara jutaan<br>bintang...
+        </h1>
+
+        <div id="subtitle" class="enter">
+            Ada satu hari ketika semesta<br>
+            menjadi sedikit lebih indah.
+        </div>
+
+    </div>
+
+    <div class="controls">
+
+        <button id="nextScene">
+            Mulai perjalanan ✧
+        </button>
+
+        <div id="dots">
+            ● ○ ○ ○ ○
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+  // @ts-nocheck
+
+// =====================================
+// PERSONALISASI NAMA PENERIMA
+// =====================================
+
+const nama = "DELLA INDAH SAPITRI";
+
+// =====================================
+// PENGATURAN CANVAS
+// =====================================
+
+const canvas = document.getElementById("scene");
+const ctx = canvas.getContext("2d");
+const film = document.getElementById("film");
+
+let w, h;
+let stage = 0;
+let start = performance.now();
+let particles = [];
+let lastFire = 0;
+
+function resize() {
+
+    w = film.clientWidth;
+    h = film.clientHeight;
+
+    const dpr = Math.min(
+        window.devicePixelRatio || 1, 2
+    );
+
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+resize();
+
+window.addEventListener("resize", resize);
+
+// =====================================
+// CERITA DAN ADEGAN
+// =====================================
+
+const scenes = [
+
+    {
+        chapter: "A LITTLE STORY FOR YOU",
+
+        headline:
+            "Di antara jutaan<br>bintang...",
+
+        subtitle:
+            "Ada satu hari ketika semesta<br>" +
+            "menjadi sedikit lebih indah.",
+
+        button: "Mulai perjalanan ✧"
+    },
+
+    {
+        chapter: "CHAPTER I — THE BEGINNING",
+
+        headline:
+            "Dan hari itu...<br>adalah harimu.",
+
+        subtitle:
+            "Hari ketika sebuah kisah baru<br>" +
+            "mulai dituliskan di dunia.",
+
+        button: "Lanjutkan perjalanan"
+    },
+
+    {
+        chapter: "CHAPTER II — BLOOM",
+
+        headline:
+            "Tumbuhlah,<br>seperti bunga.",
+
+        subtitle:
+            "Tak perlu selalu mekar.<br>" +
+            "Bahkan dalam diam, " +
+            "kamu tetap bertumbuh.",
+
+        button: "Ada sesuatu untukmu ♡"
+    },
+
+    {
+        chapter: "CHAPTER III — MAKE A WISH",
+
+        headline:
+            "Make a wish.",
+
+        subtitle:
+            "Pejamkan mata sejenak.<br>" +
+            "Bisikkan segala yang kamu semogakan.",
+
+        button: "Tiup lilin dan buat harapan"
+    },
+
+    
+{
+    chapter: "TODAY, THE SKY IS YOURS",
+
+    headline:
+        "Happy Birthday,<br>" + nama + "!",
+
+    subtitle:
+        "Semoga tahun ini lebih lembut kepadamu.<br>" +
+        "Lebih banyak tawa, lebih sedikit luka.<br>" +
+        "Dan semoga bahagia selalu menemukanmu.<br><br>" +
+        "<span class='signature'>" +
+        "Dari aku yang selalu mencintaimu. ♡" +
+        "</span>",
+
+    button: "Ulangi perjalanan ↻"
+}
+
+
+];
+
+// =====================================
+// MEMBUAT BINTANG
+// =====================================
+
+const stars = Array.from(
+    { length: 180 },
+    () => ({
+        x: Math.random(),
+        y: Math.random() * 0.85,
+        r: Math.random() * 1.5 + 0.3,
+        p: Math.random() * 7
+    })
+);
+
+// =====================================
+// MEMBUAT BUNGA
+// =====================================
+
+const flowers = Array.from(
+    { length: 24 },
+    (_, i) => ({
+        x: (i + 0.5) / 24,
+        y: 50 + Math.random() * 110,
+        s: 7 + Math.random() * 10,
+        p: Math.random() * 5
+    })
+);
+
+// =====================================
+// EFEK CAHAYA
+// =====================================
+
+function glow(x, y, radius, color) {
+
+    const gradient = ctx.createRadialGradient(
+        x, y, 0,
+        x, y, radius
+    );
+
+    gradient.addColorStop(0, color);
+    gradient.addColorStop(1, "transparent");
+
+    ctx.fillStyle = gradient;
+
+    ctx.fillRect(
+        x - radius,
+        y - radius,
+        radius * 2,
+        radius * 2
+    );
+}
+
+// =====================================
+// ANIMASI LANGIT
+// =====================================
+
+function drawSky() {
+
+    const gradient = ctx.createLinearGradient(
+        0, 0, 0, h
+    );
+
+    gradient.addColorStop(0, "#080e20");
+
+    gradient.addColorStop(
+        0.6,
+        stage === 2 ? "#40304c" : "#252744"
+    );
+
+    gradient.addColorStop(
+        1,
+        stage === 2 ? "#785367" : "#513b59"
+    );
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, w, h);
+}
+
+// =====================================
+// BINTANG BERKELAP-KELIP
+// =====================================
+
+function drawStars(t) {
+
+    stars.forEach(s => {
+
+        ctx.globalAlpha =
+            0.35 +
+            0.55 *
+            (Math.sin(t * 1.5 + s.p) + 1) / 2;
+
+        ctx.fillStyle = "#fff4d9";
+
+        ctx.beginPath();
+
+        ctx.arc(
+            s.x * w,
+            s.y * h,
+            s.r,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    });
+
+    ctx.globalAlpha = 1;
+}
+
+// =====================================
+// BULAN SABIT
+// =====================================
+
+function drawMoon() {
+
+    const x = w * 0.78;
+    const y = h * 0.15;
+    const r = Math.min(w * 0.065, 40);
+
+    glow(x, y, 100, "#ffddb233");
+
+    ctx.save();
+
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.clip();
+
+    ctx.fillStyle = "#f8e7c6";
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+
+    ctx.fillStyle = "#11172b";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x + r * 0.45,
+        y - r * 0.35,
+        r * 0.95,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+    ctx.restore();
+}
+
+// =====================================
+// PEGUNUNGAN BERLAPIS
+// =====================================
+
+function drawMountains() {
+
+    const colors = [
+        "#29263f",
+        "#1d2336",
+        "#111c2b"
+    ];
+
+    for (let j = 0; j < 3; j++) {
+
+        ctx.fillStyle = colors[j];
+
+        ctx.beginPath();
+        ctx.moveTo(0, h);
+
+        for (let x = 0; x <= w + 10; x += 10) {
+
+            const y =
+                h - 120 + j * 30 +
+                Math.sin(x / w * 8 + j * 2) * 35 +
+                Math.cos(x / w * 13) * 15;
+
+            ctx.lineTo(x, y);
+        }
+
+        ctx.lineTo(w, h);
+        ctx.closePath();
+        ctx.fill();
+    }
+}
+
+// =====================================
+// KUNANG-KUNANG
+// =====================================
+
+function drawFireflies(t) {
+
+    for (let i = 0; i < 30; i++) {
+
+        const x =
+            (Math.sin(t * 0.22 + i * 3) *
+            0.45 + 0.5) * w;
+
+        const y =
+            h * 0.8 +
+            Math.sin(t * 0.6 + i * 5) * 90;
+
+        glow(x, y, 12, "#ffe1a66a");
+
+        ctx.fillStyle = "#ffebae";
+
+        ctx.beginPath();
+        ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+// =====================================
+// BINTANG JATUH
+// =====================================
+
+function drawShootingStar(t) {
+
+    const p = (t % 4) / 4;
+
+    const x = w * (1 - p);
+    const y = 30 + p * h * 0.35;
+
+    const gradient = ctx.createLinearGradient(
+        x, y,
+        x + 90, y - 50
+    );
+
+    gradient.addColorStop(0, "#fff4dd");
+    gradient.addColorStop(1, "transparent");
+
+    ctx.globalAlpha = Math.sin(p * Math.PI);
+
+    ctx.strokeStyle = gradient;
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + 90, y - 50);
+    ctx.stroke();
+
+    ctx.globalAlpha = 1;
+}
+
+// =====================================
+// BUNGA BERMEKARAN
+// =====================================
+
+function drawFlowers(t, elapsed) {
+
+    flowers.forEach((f, i) => {
+
+        const growth = Math.max(
+            0,
+            Math.min(
+                1,
+                (elapsed - i * 0.09) / 1.8
+            )
+        );
+
+        const x = f.x * w;
+        const y = h - 70 - f.y * growth;
+
+        // Batang bunga
+
+        ctx.strokeStyle = "#a3b99e";
+        ctx.lineWidth = 1.5;
+
+        ctx.beginPath();
+        ctx.moveTo(x, h - 65);
+
+        ctx.quadraticCurveTo(
+            x - 10,
+            h - 100,
+            x,
+            y
+        );
+
+        ctx.stroke();
+
+        // Daun
+
+        if (growth > 0.3) {
+
+            ctx.fillStyle = "#819d82";
+
+            ctx.beginPath();
+
+            ctx.ellipse(
+                x - 7,
+                y + 20,
+                9 * growth,
+                3 * growth,
+                0.6,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+        }
+
+        // Kelopak bunga
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(growth, growth);
+
+        ctx.rotate(
+            Math.sin(t + f.p) * 0.15
+        );
+
+        for (let j = 0; j < 5; j++) {
+
+            ctx.rotate(Math.PI * 2 / 5);
+
+            ctx.fillStyle =
+                i % 2 ? "#e6b4c7" : "#f5dfb8";
+
+            ctx.beginPath();
+
+            ctx.ellipse(
+                0,
+                f.s * 0.65,
+                f.s * 0.45,
+                f.s * 0.8,
+                0,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+        }
+
+        // Bagian tengah bunga
+
+        ctx.fillStyle = "#d6a76b";
+
+        ctx.beginPath();
+        ctx.arc(0, 0, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+    });
+}
+
+// =====================================
+// LILIN ULANG TAHUN
+// =====================================
+
+function drawCandle(t) {
+
+    const x = w / 2;
+    const y = h * 0.22;
+
+    glow(x, y - 22, 65, "#ffc46b55");
+
+    // Badan lilin
+
+    ctx.fillStyle = "#e3b6c9";
+    ctx.fillRect(x - 6, y, 12, 38);
+
+    // Garis dekoratif
+
+    ctx.strokeStyle = "#f8dbe3";
+    ctx.lineWidth = 2;
+
+    for (let i = 0; i < 4; i++) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(x - 6, y + i * 10);
+
+        ctx.lineTo(
+            x + 6,
+            y + i * 10 + 5
+        );
+
+        ctx.stroke();
+    }
+
+    // Api lilin
+
+    ctx.fillStyle = "#ffca7d";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        x + Math.sin(t * 8) * 2,
+        y - 12,
+        6,
+        13 + Math.sin(t * 10) * 2,
+        0,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+    ctx.fillStyle = "#fff1c5";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        x,
+        y - 8,
+        3,
+        7,
+        0,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+}
+
+// =====================================
+// KEMBANG API
+// =====================================
+
+function burst(x, y) {
+
+    const colors = [
+        "#ffe2a5",
+        "#f8b9cf",
+        "#c9b9ff",
+        "#9eddd5",
+        "#ffffff"
+    ];
+
+    const color = colors[
+        Math.floor(Math.random() * colors.length)
+    ];
+
+    for (let i = 0; i < 90; i++) {
+
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 1 + Math.random() * 4;
+
+        particles.push({
+
+            x: x,
+            y: y,
+
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+
+            life: 1,
+            color: color
+
+        });
+    }
+}
+
+function drawFireworks(now, dt) {
+
+    if (stage === 4 && now - lastFire > 750) {
+
+        burst(
+            w * (0.12 + Math.random() * 0.76),
+            h * (0.08 + Math.random() * 0.35)
+        );
+
+        lastFire = now;
+    }
+
+    particles = particles.filter(
+        p => p.life > 0
+    );
+
+    particles.forEach(p => {
+
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+
+        p.vy += 0.025 * dt;
+        p.vx *= Math.pow(0.99, dt);
+
+        p.life -= 0.009 * dt;
+
+        ctx.globalAlpha = Math.max(0, p.life);
+
+        ctx.fillStyle = p.color;
+
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 7;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            p.x,
+            p.y,
+            1.7,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    });
+
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+}
+
+// =====================================
+// ANIMASI UTAMA
+// =====================================
+
+let previousFrame = performance.now();
+
+function animate(now) {
+
+    const t = now / 1000;
+    const elapsed = (now - start) / 1000;
+
+    const dt = Math.min(
+        (now - previousFrame) / 16.67,
+        3
+    );
+
+    previousFrame = now;
+
+    drawSky();
+    drawStars(t);
+    drawMoon();
+    drawMountains();
+    drawFireflies(t);
+
+    if (stage === 1) {
+        drawShootingStar(t);
+    }
+
+    if (stage === 2) {
+        drawFlowers(t, elapsed);
+    }
+
+    if (stage === 3) {
+        drawCandle(t);
+    }
+
+    drawFireworks(now, dt);
+
+    requestAnimationFrame(animate);
+}
+
+requestAnimationFrame(animate);
+
+// =====================================
+// TRANSISI TULISAN
+// =====================================
+
+function revealText(id, content, delay) {
+
+    const element = document.getElementById(id);
+
+    element.innerHTML = content;
+
+    element.classList.remove("enter");
+
+    void element.offsetWidth;
+
+    element.style.animationDelay = delay + "s";
+
+    element.classList.add("enter");
+}
+
+// =====================================
+// PERPINDAHAN ADEGAN
+// =====================================
+
+document.getElementById("nextScene")
+.addEventListener("click", () => {
+
+    stage = (stage + 1) % scenes.length;
+
+    start = performance.now();
+
+    const scene = scenes[stage];
+
+    revealText(
+        "chapter",
+        scene.chapter,
+        0
+    );
+
+    revealText(
+        "headline",
+        scene.headline,
+        0.25
+    );
+
+    revealText(
+        "subtitle",
+        scene.subtitle,
+        0.5
+    );
+
+    document.getElementById(
+        "nextScene"
+    ).textContent = scene.button;
+
+    document.getElementById(
+        "dots"
+    ).textContent = Array.from(
+        { length: scenes.length },
+        (_, i) => i === stage ? "●" : "○"
+    ).join(" ");
+
+    if (stage === 4) {
+
+        burst(w * 0.25, h * 0.25);
+        burst(w * 0.75, h * 0.18);
+        burst(w * 0.5, h * 0.12);
+    }
+
+    if (stage === 0) {
+        particles = [];
+    }
+
+});
+
+</script>
+
+  
+<audio id="backgroundMusic" loop preload="auto">
+    <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+// @ts-nocheck
+
+const music = document.getElementById("backgroundMusic");
+
+music.volume = 0;
+
+document.getElementById("nextScene")
+.addEventListener("click", function () {
+
+    music.play().then(() => {
+
+        // Efek fade in musik
+        let volume = 0;
+
+        const fadeIn = setInterval(() => {
+
+            volume = Math.min(volume + 0.02, 0.6);
+            music.volume = volume;
+
+            if (volume >= 0.6) {
+                clearInterval(fadeIn);
+            }
+
+        }, 100);
+
+    }).catch(console.error);
+
+}, { once: true });
+
+</script>
+
+
+</body>
+</html>
