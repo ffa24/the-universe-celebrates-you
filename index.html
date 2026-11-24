@@ -320,6 +320,7 @@ const scenes = [
     },
 
     
+
 {
     chapter: "TODAY, THE SKY IS YOURS",
 
@@ -329,16 +330,27 @@ const scenes = [
     subtitle:
         "Semoga tahun ini lebih lembut kepadamu.<br>" +
         "Lebih banyak tawa, lebih sedikit luka.<br>" +
-        "Dan semoga bahagia selalu menemukanmu.<br><br>" +
-        "<span class='signature'>" +
-        "Dari aku yang selalu mencintaimu. ♡" +
-        "</span>",
+        "Dan semoga bahagia selalu menemukanmu.",
+
+    button: "Satu hal lagi... ♡"
+},
+
+{
+    chapter: "WITH ALL MY HEART",
+
+    headline:
+        "Dari aku yang<br>" +
+        "selalu mencintaimu.",
+
+    subtitle:
+        "Hari ini, esok,<br>" +
+        "dan segala waktu setelahnya. ♡",
 
     button: "Ulangi perjalanan ↻"
 }
 
-
 ];
+
 
 // =====================================
 // MEMBUAT BINTANG
@@ -875,6 +887,27 @@ function animate(now) {
     }
 
     drawFireworks(now, dt);
+
+
+  
+if (stage === 5) {
+
+    const fade = Math.min(elapsed / 4, 1);
+
+    ctx.globalAlpha = fade;
+
+    glow(
+        w / 2,
+        h / 2,
+        180,
+        "#ffd5c522"
+    );
+
+    drawShootingStar(t);
+
+    ctx.globalAlpha = 1;
+}
+
 
     requestAnimationFrame(animate);
 }
